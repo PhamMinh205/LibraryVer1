@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard - Quản lý thư viện</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 240px;
+            background: #1e4620;
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .main {
+            flex: 1;
+            padding: 20px 30px;
+            background: #f5f7fa;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        .header button {
+            background: #c62828;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #1e4620;
+            color: #fff;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .btn-edit {
+            background: #1976d2;
+            color: #fff;
+        }
+        
+        .btn-delete {
+            background: #d32f2f;
+            color: #fff;
+        }
+        
+        .btn-add {
+            background: #2d5b2d;
+            color: #fff;
+            margin: 10px 0;
+        }
+        
+        form label {
+            display: block;
+            margin-top: 8px;
+        }
+        
+        form input {
+            padding: 6px;
+            margin-top: 4px;
+            width: 100%;
+        }
+        
+        .card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>📚 Admin</h2>
+        <a class="active" onclick="showPage('accounts')">Quản lý tài khoản</a>
+        <a onclick="showPage('books')">Quản lý sách</a>
+        <a onclick="showPage('settings')">Cài đặt hệ thống</a>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h1 id="pageTitle">Quản lý tài khoản</h1>
+            <a href="dn.html"><button onclick="logout()">Đăng xuất</button></a>
+        </div>
+        <div id="content"></div>
+    </div>
+
+    <script>
+        // ======= DATA DEMO (localStorage giả lập database) =========
+        if (!localStorage.getItem("accounts")) {
+            localStorage.setItem("accounts", JSON.stringify([{
+                id: 1,
+                username: "admin",
+                role: "Quản trị viên",
+                status: "Hoạt động"
+            }, {
+                id: 2,
+                username: "user",
+                role: "Người dùng",
+                status: "Hoạt động"
+            }]));
+        }
+        if (!localStorage.getItem("books")) {
+            localStorage.setItem("books", JSON.stringify([{
+                id: "B001",
+                title: "Lập trình C#",
+                author: "Nguyễn Văn A",
+                quantity: 10
+            }, {
+                id: "B002",
+                title: "Cơ sở dữ liệu",
+                author: "Trần Văn B",
+                quantity: 5
+            }]));
+        }
+
+        // ======= HIỂN THỊ MENU =========
+        function showPage(page) {
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+            const content = document.getElementById("content");
+            const title = document.getElementById("pageTitle");
+
+            if (page === "accounts") {
+                title.textContent = "Quản lý tài khoản";
+                renderAccounts();
+            } else if (page === "books") {
+                title.textContent = "Quản lý sách";
+                renderBooks();
+            } else if (page === "settings") {
+                title.textContent = "Cài đặt hệ thống";
+                renderSettings();
+            }
+        }
+
+        // ======= CHỨC NĂNG TÀI KHOẢN =========
+        function renderAccounts() {
+            let data = JSON.parse(localStorage.getItem("accounts"));
+            let html = `
+      <button class="btn btn-add" onclick="addAccount()">+ Thêm tài khoản</button>
+      <table><tr><th>ID</th><th>Tên đăng nhập</th><th>Vai trò</th><th>Trạng thái</th><th>Hành động</th></tr>
+    `;
+            data.forEach(acc => {
+                html += `<tr>
+        <td>${acc.id}</td>
+        <td>${acc.username}</td>
+        <td>${acc.role}</td>
+        <td>${acc.status}</td>
+        <td>
+          <button class="btn btn-edit" onclick="editAccount(${acc.id})">Sửa</button>
+          <button class="btn btn-delete" onclick="deleteAccount(${acc.id})">Xoá</button>
+        </td>
+      </tr>`;
+            });
+            html += "</table>";
+            document.getElementById("content").innerHTML = html;
+        }
+
+        function addAccount() {
+            const username = prompt("Nhập tên đăng nhập:");
+            const role = prompt("Nhập vai trò (Admin/User):", "Người dùng");
+            let data = JSON.parse(localStorage.getItem("accounts"));
+            let id = data.length ? data[data.length - 1].id + 1 : 1;
+            data.push({
+                id,
+                username,
+                role,
+                status: "Hoạt động"
+            });
+            localStorage.setItem("accounts", JSON.stringify(data));
+            renderAccounts();
+        }
+
+        function editAccount(id) {
+            let data = JSON.parse(localStorage.getItem("accounts"));
+            let acc = data.find(a => a.id === id);
+            const role = prompt("Nhập vai trò:", acc.role);
+            const status = prompt("Nhập trạng thái:", acc.status);
+            acc.role = role;
+            acc.status = status;
+            localStorage.setItem("accounts", JSON.stringify(data));
+            renderAccounts();
+        }
+
+        function deleteAccount(id) {
+            if (confirm("Xoá tài khoản này?")) {
+                let data = JSON.parse(localStorage.getItem("accounts"));
+                data = data.filter(a => a.id !== id);
+                localStorage.setItem("accounts", JSON.stringify(data));
+                renderAccounts();
+            }
+        }
+
+        // ======= CHỨC NĂNG SÁCH =========
+        function renderBooks() {
+            let data = JSON.parse(localStorage.getItem("books"));
+            let html = `
+      <button class="btn btn-add" onclick="addBook()">+ Thêm sách</button>
+      <table><tr><th>Mã</th><th>Tên sách</th><th>Tác giả</th><th>Số lượng</th><th>Hành động</th></tr>
+    `;
+            data.forEach(b => {
+                html += `<tr>
+        <td>${b.id}</td><td>${b.title}</td><td>${b.author}</td><td>${b.quantity}</td>
+        <td>
+          <button class="btn btn-edit" onclick="editBook('${b.id}')">Sửa</button>
+          <button class="btn btn-delete" onclick="deleteBook('${b.id}')">Xoá</button>
+        </td></tr>`;
+            });
+            html += "</table>";
+            document.getElementById("content").innerHTML = html;
+        }
+
+        function addBook() {
+            const id = prompt("Nhập mã sách:");
+            const title = prompt("Nhập tên sách:");
+            const author = prompt("Nhập tác giả:");
+            const quantity = parseInt(prompt("Nhập số lượng:"), 10);
+            let data = JSON.parse(localStorage.getItem("books"));
+            data.push({
+                id,
+                title,
+                author,
+                quantity
+            });
+            localStorage.setItem("books", JSON.stringify(data));
+            renderBooks();
+        }
+
+        function editBook(id) {
+            let data = JSON.parse(localStorage.getItem("books"));
+            let book = data.find(b => b.id === id);
+            const title = prompt("Tên sách:", book.title);
+            const author = prompt("Tác giả:", book.author);
+            const quantity = parseInt(prompt("Số lượng:", book.quantity), 10);
+            book.title = title;
+            book.author = author;
+            book.quantity = quantity;
+            localStorage.setItem("books", JSON.stringify(data));
+            renderBooks();
+        }
+
+        function deleteBook(id) {
+            if (confirm("Xoá sách này?")) {
+                let data = JSON.parse(localStorage.getItem("books"));
+                data = data.filter(b => b.id !== id);
+                localStorage.setItem("books", JSON.stringify(data));
+                renderBooks();
+            }
+        }
+
+        // ======= CÀI ĐẶT =========
+        function renderSettings() {
+            document.getElementById("content").innerHTML = `
+      <div class="card">
+        <h2>Cấu hình hệ thống</h2>
+        <form onsubmit="saveSettings(event)">
+          <label>Số ngày mượn tối đa:<input id="maxDays" type="number" value="14"></label>
+          <label>Số sách được mượn cùng lúc:<input id="maxBooks" type="number" value="5"></label>
+          <button type="submit" class="btn btn-edit" style="margin-top:10px;">Lưu</button>
+        </form>
+      </div>
+    `;
+        }
+
+        function saveSettings(e) {
+            e.preventDefault();
+            const days = document.getElementById("maxDays").value;
+            const books = document.getElementById("maxBooks").value;
+            localStorage.setItem("settings", JSON.stringify({
+                days,
+                books
+            }));
+            alert("Đã lưu cấu hình!");
+        }
+
+        // ======= ĐĂNG XUẤT =========
+        function logout() {
+            localStorage.removeItem("lib_user");
+            localStorage.removeItem("lib_role");
+            window.location.href = "index.html";
+        }
+
+        // Mặc định vào accounts
+        renderAccounts();
+    </script>
+</body>
+
+</html>

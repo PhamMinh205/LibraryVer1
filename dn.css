@@ -1,0 +1,103 @@
+/* Background gradient + ảnh nền */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom right, #dbe6f6, #c5796d);
+    background-attachment: fixed;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+
+/* Hộp login */
+
+.login-box {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    width: 380px;
+}
+
+.brand {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.brand h1 {
+    margin: 0;
+    font-size: 20px;
+    color: #2d2d2d;
+}
+
+.brand p {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 8px 0;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #2d5b2d;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #3d7b3d;
+}
+
+.helper {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin: 6px 0 14px;
+}
+
+.helper a {
+    color: #2d5b2d;
+    text-decoration: none;
+}
+
+.message {
+    margin-top: 16px;
+    font-size: 13px;
+}
+
+.message a {
+    color: #2d5b2d;
+    text-decoration: none;
+}
+
+.error {
+    color: #b00020;
+    font-size: 13px;
+    display: none;
+}
+
+.success {
+    color: #0a7a1f;
+    font-size: 13px;
+    display: none;
+}
